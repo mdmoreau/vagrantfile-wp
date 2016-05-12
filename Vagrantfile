@@ -11,6 +11,7 @@ Vagrant.configure(2) do |config|
   config.vm.hostname = hostname
   config.vm.synced_folder synced_host, "/usr/share/nginx/html/" + synced_guest, owner: "www-data", group: "www-data"
   config.vm.provider :virtualbox do |vb|
+    vb.name = hostname
     vb.customize ["modifyvm", :id, "--memory", "1024"]
     vb.customize ["modifyvm", :id, "--cpuexecutioncap", "95"]
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
