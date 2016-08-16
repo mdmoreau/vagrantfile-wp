@@ -32,6 +32,7 @@ sed -i 's|# gzip_comp_level|gzip_comp_level|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_buffers|gzip_buffers|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_http_version|gzip_http_version|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_types|gzip_types image/svg+xml|g' /etc/nginx/nginx.conf
+sed -i 's|upload_max_filesize = 2M|upload_max_filesize = 16M|g' /etc/php5/fpm/php.ini
 
 cd /etc/nginx/sites-available
 rm default
@@ -82,6 +83,7 @@ find /usr/share/nginx/html -type f -exec chmod 644 {} +
 chmod g+s /usr/share/nginx/html
 
 service nginx reload
+service php5-fpm restart
 
   SHELL
 end
