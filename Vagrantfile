@@ -43,7 +43,7 @@ server {
   root /usr/share/nginx/html;
   index index.php index.html index.htm;
   server_name localhost;
-  client_max_body_size 2m;
+  client_max_body_size 16m;
   location / {
     try_files $uri $uri/ /index.php?$args;
   }
