@@ -46,6 +46,7 @@ The location that will sync on the guest machine.  This value is relative to `/u
   - [vagrant-hostsupdater](https://github.com/cogitatio/vagrant-hostsupdater)
 2. Copy the Vagrantfile to your project folder and set the options.
 3. Run the `vagrant up` command.
+  - Make sure the `synced_host` exists on the host machine.
   - This can take a little while if it's the first time the Ubuntu Server 14.04 box is being used on the machine.
 4. Visit the `hostname` you chose in your browser and proceed with the WordPress setup.
   - All credentials match the defaults that WordPress fills in, so there's no need to change anything.
