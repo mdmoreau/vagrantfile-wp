@@ -32,7 +32,8 @@ sed -i 's|# gzip_comp_level|gzip_comp_level|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_buffers|gzip_buffers|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_http_version|gzip_http_version|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_types|gzip_types image/svg+xml|g' /etc/nginx/nginx.conf
-sed -i 's|upload_max_filesize = 2M|upload_max_filesize = 16M|g' /etc/php5/fpm/php.ini
+sed -i 's|post_max_size = 8M|post_max_size = 256M|g' /etc/php5/fpm/php.ini
+sed -i 's|upload_max_filesize = 2M|upload_max_filesize = 256M|g' /etc/php5/fpm/php.ini
 
 cd /etc/nginx/sites-available
 rm default
@@ -44,7 +45,7 @@ server {
   root /usr/share/nginx/html;
   index index.php index.html index.htm;
   server_name localhost;
-  client_max_body_size 16m;
+  client_max_body_size 256m;
   location / {
     try_files $uri $uri/ /index.php?$args;
   }
