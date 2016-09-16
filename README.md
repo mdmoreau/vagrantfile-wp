@@ -20,6 +20,7 @@ The goal of this Vagrantfile is to get a basic WordPress install running locally
 - NGINX
 - MySQL
 - PHP5-FPM
+- phpMyAdmin
 - WordPress
 
 ## Options
@@ -50,3 +51,4 @@ The location that will sync on the guest machine.  This value is relative to `/u
   - This can take a little while if it's the first time the Ubuntu Server 14.04 box is being used on the machine.
 4. Visit the `hostname` you chose in your browser and proceed with the WordPress setup.
   - All credentials match the defaults that WordPress fills in, so there's no need to change anything.
+  - phpMyAdmin can be accessed at `hostname`/phpmyadmin.

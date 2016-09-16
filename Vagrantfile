@@ -21,9 +21,14 @@ Vagrant.configure(2) do |config|
 
 debconf-set-selections <<< "mysql-server mysql-server/root_password password root"
 debconf-set-selections <<< "mysql-server mysql-server/root_password_again password root"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/dbconfig-install boolean true"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/app-password-confirm password root"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/mysql/admin-pass password root"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/mysql/app-pass password root"
+debconf-set-selections <<< "phpmyadmin phpmyadmin/reconfigure-webserver multiselect none"
 
 apt-get update
-apt-get -f install -y nginx mysql-server php5-fpm php5-mysql php5-gd libssh2-php unzip
+apt-get -f install -y nginx mysql-server php5-fpm php5-mysql php5-gd libssh2-php phpmyadmin unzip
 
 sed -i 's|sendfile on|sendfile off|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_vary|gzip_vary|g' /etc/nginx/nginx.conf
@@ -82,6 +87,9 @@ chown -R www-data:www-data /usr/share/nginx/html
 find /usr/share/nginx/html -type d -exec chmod 755 {} +
 find /usr/share/nginx/html -type f -exec chmod 644 {} +
 chmod g+s /usr/share/nginx/html
+
+ln -s /usr/share/phpmyadmin /usr/share/nginx/html
+php5enmod mcrypt
 
 service nginx reload
 service php5-fpm restart
