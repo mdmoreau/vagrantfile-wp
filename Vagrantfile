@@ -6,7 +6,7 @@ synced_host = "./dist"
 synced_guest = "wp-content/themes/wp" # relative to /usr/share/nginx/html/
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "ubuntu/xenial64"
   config.vm.network "private_network", ip: "192.168.33.10"
   config.vm.hostname = hostname
   config.vm.synced_folder synced_host, "/usr/share/nginx/html/" + synced_guest, owner: "www-data", group: "www-data"
@@ -16,6 +16,7 @@ Vagrant.configure(2) do |config|
     vb.customize ["modifyvm", :id, "--cpuexecutioncap", "95"]
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+    vb.customize ["modifyvm", :id, "--uartmode1", "disconnected"]
   end
   config.vm.provision "shell", inline: <<-SHELL
 
@@ -28,7 +29,7 @@ debconf-set-selections <<< "phpmyadmin phpmyadmin/mysql/app-pass password root"
 debconf-set-selections <<< "phpmyadmin phpmyadmin/reconfigure-webserver multiselect none"
 
 apt-get update
-apt-get -f install -y nginx mysql-server php5-fpm php5-mysql php5-gd libssh2-php phpmyadmin unzip
+apt-get -f install -y nginx mysql-server php7.0-fpm php7.0-mysql php7.0-gd php7.0-mcrypt php-ssh2 phpmyadmin unzip
 
 sed -i 's|sendfile on|sendfile off|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_vary|gzip_vary|g' /etc/nginx/nginx.conf
@@ -37,8 +38,8 @@ sed -i 's|# gzip_comp_level|gzip_comp_level|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_buffers|gzip_buffers|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_http_version|gzip_http_version|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_types|gzip_types image/svg+xml|g' /etc/nginx/nginx.conf
-sed -i 's|post_max_size = 8M|post_max_size = 256M|g' /etc/php5/fpm/php.ini
-sed -i 's|upload_max_filesize = 2M|upload_max_filesize = 256M|g' /etc/php5/fpm/php.ini
+sed -i 's|post_max_size = 8M|post_max_size = 256M|g' /etc/php/7.0/fpm/php.ini
+sed -i 's|upload_max_filesize = 2M|upload_max_filesize = 256M|g' /etc/php/7.0/fpm/php.ini
 
 cd /etc/nginx/sites-available
 rm default
@@ -65,7 +66,7 @@ server {
     if (!-f $document_root$fastcgi_script_name) {
       return 404;
     }
-    fastcgi_pass unix:/var/run/php5-fpm.sock;
+    fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
     fastcgi_index index.php;
     fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
     include fastcgi_params;
@@ -76,7 +77,7 @@ EOF
 mysql -u root -proot -e "CREATE DATABASE wordpress; GRANT ALL PRIVILEGES ON wordpress.* TO username@localhost IDENTIFIED BY 'password'"
 
 cd /usr/share/nginx/html
-rm 50x.html index.html
+rm index.html
 wget "https://wordpress.org/latest.zip"
 unzip latest.zip
 rm latest.zip
@@ -89,10 +90,10 @@ find /usr/share/nginx/html -type f -exec chmod 644 {} +
 chmod g+s /usr/share/nginx/html
 
 ln -s /usr/share/phpmyadmin /usr/share/nginx/html
-php5enmod mcrypt
+phpenmod mcrypt
 
 service nginx reload
-service php5-fpm restart
+service php7.0-fpm restart
 
   SHELL
 end

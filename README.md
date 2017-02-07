@@ -16,10 +16,10 @@ The goal of this Vagrantfile is to get a basic WordPress install running locally
 
 ## What's in the Box?
 
-- Ubuntu Server 14.04
+- Ubuntu Server 16.04
 - NGINX
 - MySQL
-- PHP5-FPM
+- PHP7.0-FPM
 - phpMyAdmin
 - WordPress
 
@@ -48,7 +48,7 @@ The location that will sync on the guest machine.  This value is relative to `/u
 2. Copy the Vagrantfile to your project folder and set the options.
 3. Run the `vagrant up` command.
   - Make sure the `synced_host` exists on the host machine.
-  - This can take a little while if it's the first time the Ubuntu Server 14.04 box is being used on the machine.
+  - This can take a little while if it's the first time the Ubuntu Server 16.04 box is being used on the machine.
 4. Visit the `hostname` you chose in your browser and proceed with the WordPress setup.
   - All credentials match the defaults that WordPress fills in, so there's no need to change anything.
   - phpMyAdmin can be accessed at `hostname`/phpmyadmin.
