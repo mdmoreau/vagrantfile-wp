@@ -1,14 +1,15 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-hostname = "wp.dev"
-synced_host = "./dist"
+hostname = "wp.test"
+synced_host = "./"
 synced_guest = "wp-content/themes/wp" # relative to /usr/share/nginx/html/
 
 Vagrant.configure(2) do |config|
   config.vm.box = "ubuntu/xenial64"
   config.vm.network "private_network", ip: "192.168.33.10"
   config.vm.hostname = hostname
+  config.vm.synced_folder ".", "/vagrant", disabled: true
   config.vm.synced_folder synced_host, "/usr/share/nginx/html/" + synced_guest, owner: "www-data", group: "www-data"
   config.vm.provider :virtualbox do |vb|
     vb.name = hostname
