@@ -21,6 +21,7 @@ The goal of this Vagrantfile is to get a basic WordPress install running locally
 - MySQL
 - PHP7.0-FPM
 - phpMyAdmin
+- WP-CLI
 - WordPress
 
 ## Options

@@ -30,7 +30,7 @@ debconf-set-selections <<< "phpmyadmin phpmyadmin/mysql/app-pass password root"
 debconf-set-selections <<< "phpmyadmin phpmyadmin/reconfigure-webserver multiselect none"
 
 apt-get update
-apt-get -f install -y nginx mysql-server php7.0-fpm php7.0-mysql php7.0-gd php7.0-mcrypt php-ssh2 phpmyadmin unzip
+apt-get -f install -y nginx mysql-server php7.0-fpm php7.0-mysql php7.0-gd php7.0-mcrypt php-ssh2 phpmyadmin
 
 sed -i 's|sendfile on|sendfile off|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_vary|gzip_vary|g' /etc/nginx/nginx.conf
@@ -77,13 +77,13 @@ EOF
 
 mysql -u root -proot -e "CREATE DATABASE wordpress; GRANT ALL PRIVILEGES ON wordpress.* TO username@localhost IDENTIFIED BY 'password'"
 
+curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+chmod +x wp-cli.phar
+mv wp-cli.phar /usr/local/bin/wp
+
 cd /usr/share/nginx/html
 rm index.html
-wget "https://wordpress.org/latest.zip"
-unzip latest.zip
-rm latest.zip
-cp -a wordpress/. .
-rm -rf wordpress
+wp core download --allow-root
 
 chown -R www-data:www-data /usr/share/nginx/html
 find /usr/share/nginx/html -type d -exec chmod 755 {} +
