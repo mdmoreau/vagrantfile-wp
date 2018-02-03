@@ -86,9 +86,10 @@ cd /usr/share/nginx/html
 rm index.html
 wp core download --allow-root
 
+usermod -a -G www-data vagrant
 chown -R www-data:www-data /usr/share/nginx/html
-find /usr/share/nginx/html -type d -exec chmod 755 {} +
-find /usr/share/nginx/html -type f -exec chmod 644 {} +
+find /usr/share/nginx/html -type d -exec chmod 775 {} +
+find /usr/share/nginx/html -type f -exec chmod 664 {} +
 chmod g+s /usr/share/nginx/html
 
 ln -s /usr/share/phpmyadmin /usr/share/nginx/html
