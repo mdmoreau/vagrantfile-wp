@@ -6,7 +6,6 @@ synced_host = "./"
 synced_guest = "wp-content/themes/wp" # relative to /usr/share/nginx/html/
 
 Vagrant.configure(2) do |config|
-  config.ssh.insert_key = false
   config.vm.box = "ubuntu/xenial64"
   config.vm.network "private_network", ip: "192.168.33.10"
   config.vm.hostname = hostname
