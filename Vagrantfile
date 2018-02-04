@@ -31,7 +31,7 @@ debconf-set-selections <<< "phpmyadmin phpmyadmin/mysql/app-pass password root"
 debconf-set-selections <<< "phpmyadmin phpmyadmin/reconfigure-webserver multiselect none"
 
 apt-get update
-apt-get -f install -y nginx mysql-server php7.0-fpm php7.0-mysql php7.0-gd php7.0-mcrypt php-ssh2 phpmyadmin
+apt-get -f install -y nginx mysql-server php7.0-fpm php7.0-mysql php7.0-gd php7.0-mcrypt php7.0-zip php-ssh2 phpmyadmin
 
 sed -i 's|sendfile on|sendfile off|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_vary|gzip_vary|g' /etc/nginx/nginx.conf
@@ -84,7 +84,7 @@ mv wp-cli.phar /usr/local/bin/wp
 
 cd /usr/share/nginx/html
 rm index.html
-wp core download --allow-root
+wp core download --allow-root --skip-content
 
 usermod -a -G www-data vagrant
 chown -R www-data:www-data /usr/share/nginx/html
