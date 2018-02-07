@@ -10,7 +10,7 @@ Vagrant.configure(2) do |config|
   config.vm.network "private_network", ip: "192.168.33.10"
   config.vm.hostname = hostname
   config.vm.synced_folder ".", "/vagrant", disabled: true
-  config.vm.synced_folder synced_host, "/usr/share/nginx/html/" + synced_guest, owner: "www-data", group: "www-data"
+  config.vm.synced_folder synced_host, "/usr/share/nginx/html/" + synced_guest
   config.vm.provider :virtualbox do |vb|
     vb.name = hostname
     vb.customize ["modifyvm", :id, "--memory", "1024"]
@@ -30,8 +30,13 @@ debconf-set-selections <<< "phpmyadmin phpmyadmin/mysql/app-pass password root"
 debconf-set-selections <<< "phpmyadmin phpmyadmin/reconfigure-webserver multiselect none"
 
 apt-get update
-apt-get -f install -y nginx mysql-server php7.0-fpm php7.0-mysql php7.0-gd php7.0-mcrypt php7.0-zip php-ssh2 phpmyadmin
+apt-get -f install -y nginx mysql-server php7.0-fpm php7.0-mysql php7.0-gd php7.0-mcrypt php-ssh2 phpmyadmin
 
+curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+chmod +x wp-cli.phar
+mv wp-cli.phar /usr/local/bin/wp
+
+sed -i 's|user www-data|user vagrant|g' /etc/nginx/nginx.conf
 sed -i 's|sendfile on|sendfile off|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_vary|gzip_vary|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_proxied|gzip_proxied|g' /etc/nginx/nginx.conf
@@ -39,6 +44,8 @@ sed -i 's|# gzip_comp_level|gzip_comp_level|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_buffers|gzip_buffers|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_http_version|gzip_http_version|g' /etc/nginx/nginx.conf
 sed -i 's|# gzip_types|gzip_types image/svg+xml|g' /etc/nginx/nginx.conf
+sed -i 's|user = www-data|user = vagrant|g' /etc/php/7.0/fpm/pool.d/www.conf
+sed -i 's|group = www-data|group = vagrant|g' /etc/php/7.0/fpm/pool.d/www.conf
 sed -i 's|post_max_size = 8M|post_max_size = 256M|g' /etc/php/7.0/fpm/php.ini
 sed -i 's|upload_max_filesize = 2M|upload_max_filesize = 256M|g' /etc/php/7.0/fpm/php.ini
 
@@ -77,25 +84,16 @@ EOF
 
 mysql -u root -proot -e "CREATE DATABASE wordpress; GRANT ALL PRIVILEGES ON wordpress.* TO username@localhost IDENTIFIED BY 'password'"
 
-curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-chmod +x wp-cli.phar
-mv wp-cli.phar /usr/local/bin/wp
-
-cd /usr/share/nginx/html
-rm index.html
-wp core download --allow-root --skip-content
-
-usermod -a -G www-data vagrant
-chown -R www-data:www-data /usr/share/nginx/html
-find /usr/share/nginx/html -type d -exec chmod 775 {} +
-find /usr/share/nginx/html -type f -exec chmod 664 {} +
-chmod g+s /usr/share/nginx/html
-
 ln -s /usr/share/phpmyadmin /usr/share/nginx/html
 phpenmod mcrypt
 
 service nginx reload
 service php7.0-fpm restart
+
+chown vagrant:vagrant /usr/share/nginx/html /usr/share/nginx/html/wp-content /usr/share/nginx/html/wp-content/plugins /usr/share/nginx/html/wp-content/themes
+
+rm /usr/share/nginx/html/index.html
+su - vagrant -c "wp core download --path=/usr/share/nginx/html"
 
   SHELL
 end
