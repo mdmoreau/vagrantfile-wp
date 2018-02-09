@@ -11,7 +11,6 @@ The goal of this Vagrantfile is to get a basic WordPress install running locally
 - Custom hostname (requires [vagrant-hostsupdater](https://github.com/cogitatio/vagrant-hostsupdater))
 - Easy syncing of host and guest folders
 - Permissions compatible with both Vagrant and WordPress
-- Basic optimizations using gzip
 - Credentials match WordPress defaults for a quick setup
 
 ## What's in the Box?
@@ -26,7 +25,7 @@ The goal of this Vagrantfile is to get a basic WordPress install running locally
 
 ## Options
 
-There are several options at the top of the Vagrantfile.  The defaults are set for developing a theme at `wp.dev`.
+There are several options at the top of the Vagrantfile.  The defaults are set for developing a theme at `wp.test`.
 
 `hostname`
 
@@ -38,7 +37,7 @@ The location that will sync on the host machine.  This will commonly be the fold
 
 `synced_guest`
 
-The location that will sync on the guest machine.  This value is relative to `/usr/share/nginx/html/` - the root location of the WordPress install.
+The location that will sync on the guest machine.  WordPress will be installed at `/var/www/html`.
 
 ## Setup
 
