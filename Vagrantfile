@@ -47,19 +47,19 @@ sed -i 's|upload_max_filesize = 2M|upload_max_filesize = 256M|g' /etc/php/7.0/fp
 # add nginx default site config
 cat <<'EOF' > /etc/nginx/sites-available/default
 server {
-	listen 80 default_server;
-	listen [::]:80 default_server;
-	root /var/www/html;
-	index index.php index.html index.htm index.nginx-debian.html;
-	server_name localhost;
-	client_max_body_size 256m;
-	location / {
-		try_files $uri $uri/ /index.php?$args;
-	}
-	location ~ \.php$ {
-		include snippets/fastcgi-php.conf;
-		fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-	}
+  listen 80 default_server;
+  listen [::]:80 default_server;
+  root /var/www/html;
+  index index.php index.html index.htm index.nginx-debian.html;
+  server_name localhost;
+  client_max_body_size 256m;
+  location / {
+    try_files $uri $uri/ /index.php?$args;
+  }
+  location ~ \.php$ {
+    include snippets/fastcgi-php.conf;
+    fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+  }
 }
 EOF
 
