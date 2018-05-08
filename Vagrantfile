@@ -3,8 +3,8 @@
 
 # options
 hostname = "wp.test"
-synced_host = "."
-synced_guest = "/var/www/html/wp-content/themes/wp"
+target = "/var/www/html/wp-content/themes/wp"
+uploads = "https://example.com/wp-content/uploads/"
 
 # setup script
 $script = <<SCRIPT
@@ -25,7 +25,7 @@ debconf-set-selections <<< "phpmyadmin phpmyadmin/reconfigure-webserver multisel
 
 # install nginx, mysql, php and phpmyadmin
 apt-get update
-apt-get -f -q -y install nginx mysql-server php-fpm php-mysql php-gd php-mcrypt php-ssh2 phpmyadmin
+apt-get -f -q -y install nginx mysql-server php-fpm php-mysql php-gd php-mcrypt php-ssh2 php-curl phpmyadmin
 
 # install wp-cli
 curl -s -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
@@ -53,6 +53,12 @@ server {
   index index.php index.html index.htm index.nginx-debian.html;
   server_name localhost;
   client_max_body_size 256m;
+  location ~ ^/wp-content/uploads/(.*) {
+    try_files $uri @missing;
+  }
+  location @missing {
+    rewrite ^/wp-content/uploads/(.*)$ #{uploads}$1 redirect;
+  }
   location / {
     try_files $uri $uri/ /index.php?$args;
   }
@@ -64,7 +70,7 @@ server {
 EOF
 
 # create wordpress database
-mysql -uroot -proot -e "CREATE DATABASE wordpress; GRANT ALL PRIVILEGES ON wordpress.* TO username@localhost IDENTIFIED BY 'password';"
+mysql -u root -proot -e "CREATE DATABASE wordpress; GRANT ALL PRIVILEGES ON wordpress.* TO username@localhost IDENTIFIED BY 'password';"
 
 # symlink phpmyadmin to html root
 ln -s /usr/share/phpmyadmin /var/www/html
@@ -75,10 +81,24 @@ service nginx reload
 service php7.0-fpm restart
 
 # set vagrant as owner of html root
-chown vagrant:vagrant /var/www/html /var/www/html/wp-content /var/www/html/wp-content/plugins /var/www/html/wp-content/themes
+chown vagrant:vagrant /var/www/html
+
+# setup wordpress as vagrant user
+su - vagrant <<'EOF'
 
 # install wordpress
-su - vagrant -c "wp core download --path=/var/www/html"
+cd /var/www/html
+wp core download
+wp config create --dbname=wordpress --dbuser=username --dbpass=password
+wp core install --url=#{hostname} --title=#{hostname} --admin_user=admin --admin_password=admin --admin_email=admin@#{hostname} --skip-email
+
+# install wordpress plugins
+# wp plugin install [zip] [plugin-name]
+
+# symlink vagrant directory to target
+ln -s /vagrant #{target}
+
+EOF
 
 SCRIPT
 
@@ -86,11 +106,9 @@ SCRIPT
 Vagrant.configure("2") do |config|
   config.vm.box = "bento/ubuntu-16.04"
   config.vm.hostname = hostname
-  config.vm.network "private_network", ip: "192.168.33.10"
-  config.vm.synced_folder ".", "/vagrant", disabled: true
-  config.vm.synced_folder synced_host, synced_guest
-  config.vm.provider "virtualbox" do |v|
-    v.name = hostname
+  config.vm.network "private_network", auto_network: true
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = hostname
   end
   config.vm.provision "shell", inline: $script
 end
